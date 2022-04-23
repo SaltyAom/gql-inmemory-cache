@@ -8,6 +8,21 @@ export interface CacheValue {
 	expires: number
 }
 
+let invalidatingCache = false
+
+// Making run behind after scope end by marking it as async
+export const invalidateCaches = async () => {
+	if (invalidatingCache) return
+
+	invalidatingCache = true
+
+	Object.entries(cache).forEach(([key, cached]) => {
+		if (Date.now() <= cached?.expires) delete cache[+key]
+	})
+
+	invalidatingCache = false
+}
+
 interface GqlLocalCacheConfig {
 	/**
 	 * Time to Live
@@ -46,11 +61,19 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 			let key = tsh(operationName + str(variables) + query)
 
 			const cached = cache[key]
+			if (!cached) {
+				invalidateCaches()
+				return
+			}
 
-			if (!cached) return null
+			const expired = Date.now() > cached?.expires
+			if (expired) {
+				delete cache[key]
+				invalidateCaches()
+				return
+			}
 
-			const expired = Date.now() <= cached?.expires
-			if (expired) delete cache[key]
+			invalidateCaches()
 
 			return cached.data
 		}

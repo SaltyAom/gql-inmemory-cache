@@ -25,9 +25,11 @@ gql(query, {
 		id: 177013
 	}
 }).then(async (data) => {
+	const t = performance.now()
 	await gql(query, {
 		variables: {
 			id: 177013
 		}
 	})
+	console.log(`2nd operation take: ${performance.now() - t}ms`)
 })
