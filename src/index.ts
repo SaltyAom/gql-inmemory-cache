@@ -46,15 +46,15 @@ const { stringify: str } = JSON
 type Resolver = (v: Object | PromiseLike<Object>) => void
 type Pending = [Promise<Object>, Resolver]
 
-const pendings: Record<string, Pending> = {}
+const pendings: Record<number, Pending> = {}
 
-const createPending = (): Pending => {
+const createPending = (key: number) => {
 	let resolver: Resolver = () => {}
 	const pending = new Promise<Object>((resolve) => {
 		resolver = resolve
 	})
 
-	return [pending, resolver]
+	pendings[key] = [pending, resolver]
 }
 
 /**
@@ -79,7 +79,7 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 
 			const cached = cache[key]
 			if (!cached) {
-				pendings[key] = createPending()
+				createPending(key)
 				invalidateCaches()
 
 				return
@@ -87,7 +87,7 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 
 			const expired = Date.now() > cached?.expires
 			if (expired) {
-				pendings[key] = createPending()
+				createPending(key)
 
 				delete cache[key]
 				invalidateCaches()
