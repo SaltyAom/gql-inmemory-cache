@@ -1,0 +1,19 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@saltyaom/gql": "^1.1.8",
+    "@saltyaom/inmemory-cache": "../.."
+  },
+  "devDependencies": {
+    "ts-node": "^10.7.0"
+  }
+}
