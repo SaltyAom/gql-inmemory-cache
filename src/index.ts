@@ -17,7 +17,7 @@ export const invalidateCaches = async () => {
 	invalidatingCache = true
 
 	Object.entries(cache).forEach(([key, cached]) => {
-		if (Date.now() <= cached?.expires) delete cache[+key]
+		if (Date.now() > cached?.expires) delete cache[+key]
 	})
 
 	invalidatingCache = false
