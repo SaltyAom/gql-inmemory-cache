@@ -106,6 +106,11 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 
 			let key = tsh(str(variables) + query)
 
+			cache[key] = {
+				data,
+				expires: Date.now() + ttl * 1000
+			}
+
 			let pending = pendings[key]
 			if (pending) {
 				pending[1](data)

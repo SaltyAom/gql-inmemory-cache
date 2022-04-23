@@ -28,21 +28,23 @@ const runQuery = () =>
 		}
 	)
 
-const waterfall = async () => {
-	for (let i = 0; i <= 1; i++) {
-		const t = performance.now()
-		await runQuery()
-	}
-}
+// const waterfall = async () => {
+// 	for (let i = 0; i <= 3; i++) {
+// 		const t = performance.now()
+// 		console.log(await runQuery())
+// 	}
+// }
 
-const parallel = async () => {
-	for (let i = 0; i <= 3; i++) {
-		const t = performance.now()
+// waterfall()
 
-		runQuery().then((v) => {
-			console.log(`${i} operation take: ${performance.now() - t}ms`, v)
-		})
-	}
-}
+// const parallel = async () => {
+// 	for (let i = 0; i <= 3; i++) {
+// 		const t = performance.now()
 
-parallel()
+// 		runQuery().then((v) => {
+// 			console.log(`${i} operation take: ${performance.now() - t}ms`, v)
+// 		})
+// 	}
+// }
+
+// parallel()
