@@ -43,6 +43,20 @@ const tsh = (s: string) => {
 
 const { stringify: str } = JSON
 
+type Resolver = (v: Object | PromiseLike<Object>) => void
+type Pending = [Promise<Object>, Resolver]
+
+const pendings: Record<string, Pending> = {}
+
+const createPending = (): Pending => {
+	let resolver: Resolver = () => {}
+	const pending = new Promise<Object>((resolve) => {
+		resolver = resolve
+	})
+
+	return [pending, resolver]
+}
+
 /**
  * gql local cache plugins
  *
@@ -57,19 +71,27 @@ const { stringify: str } = JSON
  */
 const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 	middlewares: [
-		({ operationName, variables, query }) => {
-			let key = tsh(operationName + str(variables) + query)
+		async ({ operationName, variables, query }) => {
+			let key = tsh(str(variables) + query)
+
+			let pending = pendings[key]
+			if (pending) return await pending[0]
 
 			const cached = cache[key]
 			if (!cached) {
+				pendings[key] = createPending()
 				invalidateCaches()
+
 				return
 			}
 
 			const expired = Date.now() > cached?.expires
 			if (expired) {
+				pendings[key] = createPending()
+
 				delete cache[key]
 				invalidateCaches()
+
 				return
 			}
 
@@ -79,14 +101,15 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 		}
 	],
 	afterwares: [
-		({ data, operationName, variables, query }) => {
+		async ({ data, operationName, variables, query }) => {
 			if (!data) return null
 
-			let key = tsh(operationName + str(variables) + query)
+			let key = tsh(str(variables) + query)
 
-			cache[key] = {
-				data,
-				expires: Date.now() + ttl * 1000
+			let pending = pendings[key]
+			if (pending) {
+				pending[1](data)
+				delete pendings[key]
 			}
 		}
 	]
