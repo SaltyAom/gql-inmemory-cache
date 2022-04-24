@@ -43,14 +43,14 @@ const tsh = (s: string) => {
 
 const { stringify: str } = JSON
 
-type Resolver = (v: Object | PromiseLike<Object>) => void
-type Pending = [Promise<Object>, Resolver]
+type Resolver = (v: Object | null) => void
+type Pending = [Promise<Object | null>, Resolver]
 
 const pendings: Record<number, Pending> = {}
 
 const createPending = (key: number) => {
 	let resolver: Resolver = () => {}
-	const pending = new Promise<Object>((resolve) => {
+	const pending = new Promise<Object | null>((resolve) => {
 		resolver = resolve
 	})
 
@@ -75,7 +75,10 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 			let key = tsh(str(variables) + query)
 
 			let pending = pendings[key]
-			if (pending) return await pending[0]
+			if (pending) {
+				const cache = await pending[0]
+				if (cache) return cache
+			}
 
 			const cached = cache[key]
 			if (!cached) {
@@ -103,11 +106,11 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 	afterwares: [
 		async ({ data, operationName, variables, query }) => {
 			let key = tsh(str(variables) + query)
-
 			let pending = pendings[key]
+
 			if (pending) {
-				pending[1](data)
 				delete pendings[key]
+				pending[1](data)
 			}
 
 			if (!data) return null
