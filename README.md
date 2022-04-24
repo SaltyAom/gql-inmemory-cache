@@ -1,15 +1,15 @@
-# @saltyaom/gql-local-cache
-Local Storage Cache Plugin for [@saltyaom/gql](https://github.com/saltyaom/graphql-client)
+# @saltyaom/in-memory-cache
+In-Memory Cache for [@saltyaom/gql](https://github.com/saltyaom/graphql-client)
 
 ## Example Usage
 ```typescript
 import gql, { client } from '@saltyaom/gql'
-import localCache from '@saltyaom/gql-local-cache'
+import InMemoryCache from '@saltyaom/gql-inmemory-cache'
 
 client.config(
-  'https://api.opener.studio/graphql', 
+  'https://api.hifumin.app', 
   {
-    plugins: [localCache()]
+    plugins: [InMemoryCache()]
   }
 )
 
