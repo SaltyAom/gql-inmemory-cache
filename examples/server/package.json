@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@saltyaom/gql": "^1.2.1",
+    "@saltyaom/gql": "^1.2.2",
     "@saltyaom/inmemory-cache": "../.."
   },
   "devDependencies": {
