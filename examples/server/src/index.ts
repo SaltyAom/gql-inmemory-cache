@@ -29,7 +29,7 @@ const runQuery = () =>
 	)
 
 const waterfall = async () => {
-	for (let i = 0; i <= 3; i++) {
+	for (let i = 0; i <= 10; i++) {
 		const t = performance.now()
 		await runQuery()
 		console.log(`${i} operation take: ${performance.now() - t}ms`)
@@ -37,7 +37,7 @@ const waterfall = async () => {
 }
 
 const parallel = () => {
-	for (let i = 0; i <= 1; i++) {
+	for (let i = 0; i <= 1000; i++) {
 		const t = performance.now()
 
 		runQuery().then((v) => {

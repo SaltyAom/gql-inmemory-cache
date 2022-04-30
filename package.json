@@ -35,7 +35,7 @@
 	"devDependencies": {
 		"esbuild": "^0.12.18",
 		"typescript": "^4.3.5",
-		"@saltyaom/gql": "^1.2.2"
+		"@saltyaom/gql": "^1.3.0"
 	},
 	"peerDependencies": {
 		"@saltyaom/gql": ">= 1.2.2"

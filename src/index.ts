@@ -1,4 +1,5 @@
 import type { Plugin } from '@saltyaom/gql'
+import { hash } from '@saltyaom/gql'
 
 const cache: Cache = {}
 
@@ -33,14 +34,6 @@ interface GqlLocalCacheConfig {
 	ttl?: number
 }
 
-// https://stackoverflow.com/a/52171480
-const tsh = (s: string) => {
-	for (var i = 0, h = 9; i < s.length; )
-		h = Math.imul(h ^ s.charCodeAt(i++), 9 ** 9)
-
-	return h ^ (h >>> 9)
-}
-
 const { stringify: str } = JSON
 
 type Resolver = (v: Object | null) => void
@@ -71,28 +64,26 @@ const createPending = (key: number) => {
  */
 const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 	middlewares: [
-		async ({ operationName, variables, query }) => {
-			let key = tsh(str(variables) + query)
-
-			let pending = pendings[key]
+		async ({ hash, variables, query }) => {
+			let pending = pendings[hash]
 			if (pending) {
-				const cache = await pending[0]
+				let cache = await pending[0]
 				if (cache) return cache
 			}
 
-			const cached = cache[key]
+			let cached = cache[hash]
 			if (!cached) {
-				createPending(key)
+				createPending(hash)
 				invalidateCaches()
 
 				return
 			}
 
-			const expired = Date.now() > cached?.expires
+			let expired = Date.now() > cached?.expires
 			if (expired) {
-				createPending(key)
+				createPending(hash)
 
-				delete cache[key]
+				delete cache[hash]
 				invalidateCaches()
 
 				return
@@ -104,18 +95,16 @@ const gqlLocalCache = ({ ttl = 86400 }: GqlLocalCacheConfig = {}): Plugin => ({
 		}
 	],
 	afterwares: [
-		async ({ data, operationName, variables, query }) => {
-			let key = tsh(str(variables) + query)
-			let pending = pendings[key]
+		async ({ hash, data, variables, query }) => {
+			let pending = pendings[hash]
 
 			if (pending) {
-				delete pendings[key]
 				pending[1](data)
+				delete pendings[hash]
 			}
 
 			if (!data) return null
-
-			cache[key] = {
+			cache[hash] = {
 				data,
 				expires: Date.now() + ttl * 1000
 			}

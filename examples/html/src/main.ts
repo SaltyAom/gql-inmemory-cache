@@ -37,14 +37,14 @@ const runQuery = () =>
 
 // waterfall()
 
-// const parallel = async () => {
-// 	for (let i = 0; i <= 3; i++) {
-// 		const t = performance.now()
+const parallel = async () => {
+	for (let i = 0; i <= 3; i++) {
+		const t = performance.now()
 
-// 		runQuery().then((v) => {
-// 			console.log(`${i} operation take: ${performance.now() - t}ms`, v)
-// 		})
-// 	}
-// }
+		runQuery().then((v) => {
+			console.log(`${i} operation take: ${performance.now() - t}ms`, v)
+		})
+	}
+}
 
-// parallel()
+parallel()

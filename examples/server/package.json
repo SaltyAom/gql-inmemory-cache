@@ -10,8 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@saltyaom/gql": "^1.2.2",
-    "@saltyaom/inmemory-cache": "../.."
+    "@saltyaom/gql": "1.3.0",
+    "@saltyaom/inmemory-cache": "1.3.0"
   },
   "devDependencies": {
     "ts-node": "^10.7.0"
